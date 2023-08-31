@@ -211,7 +211,7 @@ fi
 
 # All all users to the docker group
 
-# Fix permissions of install dir, add group for all users to set permission of shared files correctly
+# add group for all users to set permission of shared files correctly
 sudo groupadd $PROFILE_GROUP
 for FILE in /users/*; do
     CURRENT_USER=${FILE##*/}
