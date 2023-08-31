@@ -1,14 +1,16 @@
 #!/bin/bash
 
 set -x
+
 BASE_IP="10.10.1."
 SECONDARY_PORT=3000
-INSTALL_DIR=/home/cloudlab-openwhisk
+INSTALL_DIR=/local/repository
+
 NUM_MIN_ARGS=3
 PRIMARY_ARG="primary"
 SECONDARY_ARG="secondary"
-USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <deploy_openwhisk> <invoker_count> <invoker_engine> <scheduler_enabled>'
-NUM_PRIMARY_ARGS=8
+USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes>'
+NUM_PRIMARY_ARGS=4
 PROFILE_GROUP="profileuser"
 
 configure_docker_storage() {
@@ -97,14 +99,14 @@ setup_primary() {
 
 apply_calico() {
     # https://projectcalico.docs.tigera.io/getting-started/kubernetes/helm
-    helm repo add projectcalico https://projectcalico.docs.tigera.io/charts > $INSTALL_DIR/calico_install.log 2>&1 
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml > $INSTALL_DIR/calico_install.log 2>&1 
     if [ $? -ne 0 ]; then
        echo "***Error: Error when loading helm calico repo. Log written to $INSTALL_DIR/calico_install.log"
        exit 1
     fi
     printf "%s: %s\n" "$(date +"%T.%N")" "Loaded helm calico repo"
 
-    helm install calico projectcalico/tigera-operator --version v3.22.0 >> $INSTALL_DIR/calico_install.log 2>&1
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml >> $INSTALL_DIR/calico_install.log 2>&1
     if [ $? -ne 0 ]; then
        echo "***Error: Error when installing calico with helm. Log appended to $INSTALL_DIR/calico_install.log"
        exit 1
@@ -175,97 +177,6 @@ add_cluster_nodes() {
         NUM_READY=$(($1-NUM_READY))
     done
     printf "%s: %s\n" "$(date +"%T.%N")" "Done!"
-}
-
-prepare_for_openwhisk() {
-    # Args: 1 = IP, 2 = num nodes, 3 = num invokers, 4 = invoker engine, 5 = scheduler enabled
-
-    # Use latest version of openwhisk-deploy-kube
-    pushd $INSTALL_DIR/openwhisk-deploy-kube
-    git pull
-    popd
-
-    # Iterate over each node and set the openwhisk role
-    # From https://superuser.com/questions/284187/bash-iterating-over-lines-in-a-variable
-    NODE_NAMES=$(kubectl get nodes -o name)
-    CORE_NODES=$(($2-$3))
-    counter=0
-    while IFS= read -r line; do
-	if [ $counter -lt $CORE_NODES ] ; then
-	    printf "%s: %s\n" "$(date +"%T.%N")" "Skipped labelling non-invoker node ${line:5}"
-        else
-            kubectl label nodes ${line:5} openwhisk-role=invoker
-            if [ $? -ne 0 ]; then
-                echo "***Error: Failed to set openwhisk role to invoker on ${line:5}."
-                exit -1
-            fi
-	    printf "%s: %s\n" "$(date +"%T.%N")" "Labelled ${line:5} as openwhisk invoker node"
-	fi
-	counter=$((counter+1))
-    done <<< "$NODE_NAMES"
-    printf "%s: %s\n" "$(date +"%T.%N")" "Finished labelling nodes."
-
-    kubectl create namespace openwhisk
-    if [ $? -ne 0 ]; then
-        echo "***Error: Failed to create openwhisk namespace"
-        exit 1
-    fi
-    printf "%s: %s\n" "$(date +"%T.%N")" "Created openwhisk namespace in Kubernetes."
-
-    cp /local/repository/mycluster.yaml $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    sed -i.bak "s/REPLACE_ME_WITH_IP/$1/g" $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    sed -i.bak "s/REPLACE_ME_WITH_INVOKER_ENGINE/$4/g" $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    sed -i.bak "s/REPLACE_ME_WITH_INVOKER_COUNT/$3/g" $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    sed -i.bak "s/REPLACE_ME_WITH_SCHEDULER_ENABLED/$5/g" $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    sudo chown $USER:$PROFILE_GROUP $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    sudo chmod -R g+rw $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml
-    printf "%s: %s\n" "$(date +"%T.%N")" "Updated $INSTALL_DIR/openwhisk-deploy-kube/mycluster.yaml"
-    
-    if [ $4 == "docker" ] ; then
-        if test -d "/mydata"; then
-	    sed -i.bak "s/\/var\/lib\/docker\/containers/\/mydata\/docker\/containers/g" $INSTALL_DIR/openwhisk-deploy-kube/helm/openwhisk/templates/_invoker-helpers.tpl
-            printf "%s: %s\n" "$(date +"%T.%N")" "Updated dockerrootdir to /mydata/docker/containers in $INSTALL_DIR/openwhisk-deploy-kube/helm/openwhisk/templates/_invoker-helpers.tpl"
-        fi
-    fi
-}
-
-
-deploy_openwhisk() {
-    # Takes cluster IP as argument to set up wskprops files.
-
-    # Deploy openwhisk via helm
-    printf "%s: %s\n" "$(date +"%T.%N")" "About to deploy OpenWhisk via Helm... "
-    cd $INSTALL_DIR/openwhisk-deploy-kube
-    helm install owdev ./helm/openwhisk -n openwhisk -f mycluster.yaml > $INSTALL_DIR/ow_install.log 2>&1 
-    if [ $? -eq 0 ]; then
-        printf "%s: %s\n" "$(date +"%T.%N")" "Ran helm command to deploy OpenWhisk"
-    else
-        echo ""
-        echo "***Error: Helm install error. Please check $INSTALL_DIR/ow_install.log."
-        exit 1
-    fi
-    cd $INSTALL_DIR
-
-    # Monitor pods until openwhisk is fully deployed
-    kubectl get pods -n openwhisk
-    printf "%s: %s\n" "$(date +"%T.%N")" "Waiting for OpenWhisk to complete deploying (this can take several minutes): "
-    DEPLOY_COMPLETE=$(kubectl get pods -n openwhisk | grep owdev-install-packages | grep Completed | wc -l)
-    while [ "$DEPLOY_COMPLETE" -ne 1 ]
-    do
-        sleep 2
-        DEPLOY_COMPLETE=$(kubectl get pods -n openwhisk | grep owdev-install-packages | grep Completed | wc -l)
-    done
-    printf "%s: %s\n" "$(date +"%T.%N")" "OpenWhisk deployed!"
-    
-    # Set up wsk properties for all users
-    for FILE in /users/*; do
-        CURRENT_USER=${FILE##*/}
-        echo -e "
-	APIHOST=$1:31001
-	AUTH=23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
-	" | sudo tee /users/$CURRENT_USER/.wskprops
-	sudo chown $CURRENT_USER:$PROFILE_GROUP /users/$CURRENT_USER/.wskprops
-    done
 }
 
 # Start by recording the arguments
@@ -356,16 +267,3 @@ apply_calico
 # Coordinate master to add nodes to the kubernetes cluster
 # Argument is number of nodes
 add_cluster_nodes $3
-
-# Exit early if we don't need to deploy OpenWhisk
-if [ "$5" = "False" ]; then
-    printf "%s: %s\n" "$(date +"%T.%N")" "Deploy Openwhisk is $4, done!"
-    exit 0
-fi
-
-# Prepare cluster to deploy OpenWhisk: takes IP, num nodes, invoker num, invoker engine, and scheduler enabled
-prepare_for_openwhisk $2 $3 $6 $7 $8
-
-# Deploy OpenWhisk via Helm
-# Takes cluster IP
-deploy_openwhisk $2
