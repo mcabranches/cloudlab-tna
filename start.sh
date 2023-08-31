@@ -218,8 +218,6 @@ for FILE in /users/*; do
     sudo gpasswd -a $CURRENT_USER $PROFILE_GROUP
     sudo gpasswd -a $CURRENT_USER docker
 done
-sudo chown -R $USER:$PROFILE_GROUP $INSTALL_DIR
-sudo chmod -R g+rw $INSTALL_DIR
 
 # At this point, a secondary node is fully configured until it is time for the node to join the cluster.
 if [ $1 == $SECONDARY_ARG ] ; then
