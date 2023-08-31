@@ -2,13 +2,15 @@
 set -x
 
 # TODO: add these
-DOCKER_VERSION_STRING=5:20.10.12~3-0~ubuntu-focal
-KUBERNETES_VERSION_STRING=1.23.3-00
+DOCKER_VERSION_STRING=5:24.0.5-1~ubuntu.20.04~focal
+KUBERNETES_VERSION_STRING=1.28.1-00
 
 # General updates
 sudo apt update
 sudo apt upgrade -y
 sudo apt autoremove -y
+
+# Note: I rebooted here when running manually.
 
 # Install docker (https://docs.docker.com/engine/install/ubuntu/)
 sudo apt install -y \
