@@ -1,7 +1,6 @@
 #!/bin/bash
 set -x
 
-# TODO: add these
 DOCKER_VERSION_STRING=5:24.0.5-1~ubuntu.20.04~focal
 KUBERNETES_VERSION_STRING=1.28.1-00
 
