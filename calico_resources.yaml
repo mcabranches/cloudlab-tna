@@ -13,7 +13,7 @@ spec:
     # Note: The ipPools section cannot be modified post-install.
     ipPools:
     - blockSize: 26
-      cidr: 10.11.0.0/14
+      cidr: 10.11.0.0/18
       encapsulation: VXLANCrossSubnet
       natOutgoing: Enabled
       nodeSelector: all()
