@@ -1,4 +1,5 @@
 # From: https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+# At this point, only changed pod cidr
 
 # This section includes base Calico installation configuration.
 # For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.Installation
@@ -12,7 +13,7 @@ spec:
     # Note: The ipPools section cannot be modified post-install.
     ipPools:
     - blockSize: 26
-      cidr: 192.168.0.0/16
+      cidr: 10.11.0.0/14
       encapsulation: VXLANCrossSubnet
       natOutgoing: Enabled
       nodeSelector: all()
