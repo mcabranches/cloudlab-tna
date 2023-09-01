@@ -101,20 +101,20 @@ setup_primary() {
 }
 
 apply_calico() {
-    # https://projectcalico.docs.tigera.io/getting-started/kubernetes/helm
-    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml > $INSTALL_DIR/calico_install.log 2>&1 
+    # https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml > $INSTALL_DIR/tigera_install.log 2>&1 
     if [ $? -ne 0 ]; then
-       echo "***Error: Error when loading helm calico repo. Log written to $INSTALL_DIR/calico_install.log"
+       echo "***Error: Error when installing tigera operator. Log written to $INSTALL_DIR/tigera_install.log"
        exit 1
     fi
-    printf "%s: %s\n" "$(date +"%T.%N")" "Loaded helm calico repo"
+    printf "%s: %s\n" "$(date +"%T.%N")" "Loaded tigera operator"
 
-    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml >> $INSTALL_DIR/calico_install.log 2>&1
+    kubectl create -f /local/repository/calico_resources.yaml > $INSTALL_DIR/calico_install.log 2>&1
     if [ $? -ne 0 ]; then
-       echo "***Error: Error when installing calico with helm. Log appended to $INSTALL_DIR/calico_install.log"
+       echo "***Error: Error when installing calico. Log written to $INSTALL_DIR/calico_install.log"
        exit 1
     fi
-    printf "%s: %s\n" "$(date +"%T.%N")" "Applied Calico networking with helm"
+    printf "%s: %s\n" "$(date +"%T.%N")" "Applied Calico networking!"
 
     # wait for calico pods to be in ready state
     printf "%s: %s\n" "$(date +"%T.%N")" "Waiting for calico pods to have status of 'Running': "
