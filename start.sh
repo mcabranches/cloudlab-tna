@@ -234,7 +234,7 @@ if [ $1 == $SECONDARY_ARG ] ; then
     cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
     # Learned this from https://k21academy.com/docker-kubernetes/container-runtime-is-not-running/
-    rm /etc/containerd/config.toml
+    sudo rm /etc/containerd/config.toml
     sudo systemctl restart containerd || (echo "ERROR: Failed to restart containerd, exiting." && exit -1)
 
     setup_secondary $2
@@ -260,7 +260,7 @@ sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" /etc/systemd/system/kubelet.service.
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
 # Learned this from https://k21academy.com/docker-kubernetes/container-runtime-is-not-running/
-rm /etc/containerd/config.toml
+sudo rm /etc/containerd/config.toml
 sudo systemctl restart containerd || (echo "ERROR: Failed to restart containerd, exiting." && exit -1)
 
 # Finish setting up the primary node
