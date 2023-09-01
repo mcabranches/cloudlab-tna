@@ -40,6 +40,9 @@ disable_swap() {
         exit -1
     fi
     sudo sed -i.bak 's/UUID=.*swap/# &/' /etc/fstab
+
+    # Make root partition larger
+    sudo resize2fs /dev/sda1
 }
 
 setup_secondary() {
