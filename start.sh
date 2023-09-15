@@ -6,11 +6,13 @@ BASE_IP="10.10.1."
 SECONDARY_PORT=3000
 INSTALL_DIR=/local/repository
 
-NUM_MIN_ARGS=3
+NUM_MIN_ARGS=4
 PRIMARY_ARG="primary"
 SECONDARY_ARG="secondary"
-USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes>'
-NUM_PRIMARY_ARGS=4
+IPVS_ARG="ipvs"
+IPTABLES_ARG="iptables"
+USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables>'
+NUM_PRIMARY_ARGS=5
 PROFILE_GROUP="profileuser"
 
 configure_docker_storage() {
@@ -28,6 +30,23 @@ configure_docker_storage() {
     sudo systemctl restart docker || (echo "ERROR: Docker installation failed, exiting." && exit -1)
     sudo docker run hello-world | grep "Hello from Docker!" || (echo "ERROR: Docker installation failed, exiting." && exit -1)
     printf "%s: %s\n" "$(date +"%T.%N")" "Configured docker storage to use mountpoint"
+}
+
+configure_ipvs() {
+    # Information from: https://github.com/kubernetes/kubernetes/blob/master/pkg/proxy/ipvs/README.md
+    
+    # Load modules
+    sudo modprobe -- ip_vs
+    sudo modprobe -- ip_vs_rr
+    sudo modprobe -- ip_vs_wrr
+    sudo modprobe -- ip_vs_sh
+    sudo modprobe -- nf_conntrack
+
+    # Load helpful packages (note that ipset is already installed)
+    sudo apt install ipvsadm
+
+    # Set environment variable for k8s kube-proxy to use
+    export KUBE_PROXY_MODE=ipvs
 }
 
 disable_swap() {
@@ -221,6 +240,18 @@ for FILE in /users/*; do
     sudo gpasswd -a $CURRENT_USER $PROFILE_GROUP
     sudo gpasswd -a $CURRENT_USER docker
 done
+
+# Setup to use ipvs if desired
+if [ $3 == $IPVS_ARG ] ; then
+    configure_ipvs
+    echo "Using ipvs"
+else if [ $3 == $IPTABLES_ARG ] ; then
+    echo "Using iptables"
+else
+    echo "***Error: Expected $IPVS_ARG or $IPTABLES_ARG"
+    echo "$USAGE"
+    exit -1
+fi
 
 # At this point, a secondary node is fully configured until it is time for the node to join the cluster.
 if [ $1 == $SECONDARY_ARG ] ; then
