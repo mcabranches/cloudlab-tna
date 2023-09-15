@@ -245,7 +245,7 @@ done
 if [ $3 == $IPVS_ARG ] ; then
     configure_ipvs
     echo "Using ipvs"
-else if [ $3 == $IPTABLES_ARG ] ; then
+elif [ $3 == $IPTABLES_ARG ] ; then
     echo "Using iptables"
 else
     echo "***Error: Expected $IPVS_ARG or $IPTABLES_ARG"
