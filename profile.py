@@ -32,6 +32,10 @@ pc.defineParameter("startKubernetes",
                    portal.ParameterType.BOOLEAN,
                    True,
                    longDescription="Create a Kubernetes cluster using default image setup (calico networking, etc.)")
+pc.defineParameter("useIpvs",
+                   "Configure kube-proxy to use ipvs instead of iptables",
+                   portal.ParameterType.BOOLEAN,
+                   False)
 
 # Below option copy/pasted directly from small-lan experiment on CloudLab
 # Optional ephemeral blockstore
@@ -74,6 +78,10 @@ def create_node(name, nodes, lan):
   # Add to node list
   nodes.append(node)
 
+ip_backend = "iptables"
+if params.useIpvs:
+  ip_backend = "ipvs"
+
 nodes = []
 lan = request.LAN()
 lan.bandwidth = BANDWIDTH
@@ -87,11 +95,11 @@ for i in range(params.nodeCount):
 
 # Iterate over secondary nodes first
 for i, node in enumerate(nodes[1:]):
-    node.addService(rspec.Execute(shell="bash", command="/local/repository/start.sh secondary {}.{} {} > /local/repository/start.log 2>&1 &".format(
-      BASE_IP, i + 2, params.startKubernetes)))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/start.sh secondary {}.{} {} {} > /local/repository/start.log 2>&1 &".format(
+      BASE_IP, i + 2, params.startKubernetes, ip_backend)))
 
 # Start primary node
-nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} > /local/repository/start.log 2>&1".format(
-  BASE_IP, params.nodeCount, params.startKubernetes)))
+nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} {} > /local/repository/start.log 2>&1".format(
+  BASE_IP, params.nodeCount, params.startKubernetes, ip_backend)))
 
 pc.printRequestRSpec()
