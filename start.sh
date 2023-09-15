@@ -241,18 +241,6 @@ for FILE in /users/*; do
     sudo gpasswd -a $CURRENT_USER docker
 done
 
-# Setup to use ipvs if desired
-if [ $3 == $IPVS_ARG ] ; then
-    configure_ipvs
-    echo "Using ipvs"
-elif [ $3 == $IPTABLES_ARG ] ; then
-    echo "Using iptables"
-else
-    echo "***Error: Expected $IPVS_ARG or $IPTABLES_ARG"
-    echo "$USAGE"
-    exit -1
-fi
-
 # At this point, a secondary node is fully configured until it is time for the node to join the cluster.
 if [ $1 == $SECONDARY_ARG ] ; then
 
@@ -260,6 +248,18 @@ if [ $1 == $SECONDARY_ARG ] ; then
     if [ "$3" == "False" ]; then
         printf "%s: %s\n" "$(date +"%T.%N")" "Start Kubernetes is $3, done!"
         exit 0
+    fi
+
+    # Setup to use ipvs if desired
+    if [ $4 == $IPVS_ARG ] ; then
+        configure_ipvs
+        echo "Using ipvs"
+    elif [ $4 == $IPTABLES_ARG ] ; then
+        echo "Using iptables"
+    else
+        echo "***Error: Expected $IPVS_ARG or $IPTABLES_ARG"
+        echo "$USAGE"
+        exit -1
     fi
     
     # Use second argument (node IP) to replace filler in kubeadm configuration
@@ -286,6 +286,18 @@ fi
 if [ "$4" = "False" ]; then
     printf "%s: %s\n" "$(date +"%T.%N")" "Start Kubernetes is $4, done!"
     exit 0
+fi
+
+# Setup to use ipvs if desired
+if [ $5 == $IPVS_ARG ] ; then
+    configure_ipvs
+    echo "Using ipvs"
+elif [ $5 == $IPTABLES_ARG ] ; then
+    echo "Using iptables"
+else
+    echo "***Error: Expected $IPVS_ARG or $IPTABLES_ARG"
+    echo "$USAGE"
+    exit -1
 fi
 
 # Use second argument (node IP) to replace filler in kubeadm configuration
