@@ -44,12 +44,6 @@ configure_ipvs() {
 
     # Load helpful packages (note that ipset is already installed)
     sudo apt install ipvsadm
-
-    # Add to kubeadm config
-    echo "---" >> kubeadm.yaml
-    echo "apiVersion: kubeproxy.config.k8s.io/v1alpha1" >> kubeadm.yaml
-    echo "kind: KubeProxyConfiguration" >> kubeadm.yaml
-    echo "mode: ipvs" >> kubeadm.yaml
 }
 
 disable_swap() {
@@ -101,7 +95,7 @@ setup_secondary() {
 setup_primary() {
     # initialize k8 primary node
     printf "%s: %s\n" "$(date +"%T.%N")" "Starting Kubernetes... (this can take several minutes)... "
-    sudo kubeadm init --config=kubeadm.yaml --apiserver-advertise-address=$1 --pod-network-cidr=10.11.0.0/16 > $INSTALL_DIR/k8s_install.log 2>&1
+    sudo kubeadm init --config=$INSTALL_DIR/kubeadm.yaml > $INSTALL_DIR/k8s_install.log 2>&1
     if [ $? -eq 0 ]; then
         printf "%s: %s\n" "$(date +"%T.%N")" "Done! Output in $INSTALL_DIR/k8s_install.log"
     else
@@ -253,8 +247,6 @@ if [ $1 == $SECONDARY_ARG ] ; then
         exit 0
     fi
 
-    kubeadm config print init-defaults > kubeadm.yaml
-
     # Setup to use ipvs if desired
     if [ $4 == $IPVS_ARG ] ; then
         configure_ipvs
@@ -293,8 +285,6 @@ if [ "$4" = "False" ]; then
     exit 0
 fi
 
-kubeadm config print init-defaults > kubeadm.yaml
-
 # Setup to use ipvs if desired
 if [ $5 == $IPVS_ARG ] ; then
     configure_ipvs
@@ -311,6 +301,9 @@ fi
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" $INSTALL_DIR/kubeadm.conf
+sudo sed -i.bak "s/REPLACE_ME_WITH_MODE/$5/g" $INSTALL_DIR/kubeadm.conf
+cat $INSTALL_DIR/kubeadm.conf
 
 # Learned this from https://k21academy.com/docker-kubernetes/container-runtime-is-not-running/
 sudo rm /etc/containerd/config.toml
@@ -318,7 +311,7 @@ sudo systemctl restart containerd || (echo "ERROR: Failed to restart containerd,
 
 # Finish setting up the primary node
 # Argument is node_ip
-setup_primary $2
+setup_primary
 
 # Apply calico networking
 apply_calico
