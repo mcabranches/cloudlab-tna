@@ -301,9 +301,9 @@ fi
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" $INSTALL_DIR/kubeadm.conf
-sudo sed -i.bak "s/REPLACE_ME_WITH_MODE/$5/g" $INSTALL_DIR/kubeadm.conf
-cat $INSTALL_DIR/kubeadm.conf
+sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" $INSTALL_DIR/kubeadm.yaml
+sudo sed -i.bak "s/REPLACE_ME_WITH_MODE/$5/g" $INSTALL_DIR/kubeadm.yaml
+cat $INSTALL_DIR/kubeadm.yaml
 
 # Learned this from https://k21academy.com/docker-kubernetes/container-runtime-is-not-running/
 sudo rm /etc/containerd/config.toml
