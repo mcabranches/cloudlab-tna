@@ -8,4 +8,4 @@ networking:
   podSubnet: "10.11.0.0/16" # --pod-network-cidr
 kind: InitConfiguration
 localAPIEndpoint:
-  advertiseAddress: 10.10.1.1 # --apiserver-advertise-address
+  advertiseAddress: REPLACE_ME_WITH_IP # --apiserver-advertise-address
