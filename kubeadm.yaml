@@ -1,11 +1,13 @@
-apiVersion: kubeproxy.config.k8s.io/v1alpha1
-kind: KubeProxyConfiguration
-mode: REPLACE_ME_WITH_MODE
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: "REPLACE_ME_WITH_IP" # --apiserver-advertise-address
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 networking:
   podSubnet: "10.11.0.0/16" # --pod-network-cidr
-kind: InitConfiguration
-localAPIEndpoint:
-  advertiseAddress: REPLACE_ME_WITH_IP # --apiserver-advertise-address
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: "REPLACE_ME_WITH_MODE"
