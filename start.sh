@@ -11,8 +11,8 @@ PRIMARY_ARG="primary"
 SECONDARY_ARG="secondary"
 IPVS_ARG="ipvs"
 IPTABLES_ARG="iptables"
-USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables>'
-NUM_PRIMARY_ARGS=5
+USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables> <encapsulation> <nat>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables>'
+NUM_PRIMARY_ARGS=7
 PROFILE_GROUP="profileuser"
 
 configure_docker_storage() {
@@ -297,13 +297,22 @@ else
     exit -1
 fi
 
+# TODO: should probably also check encapsulation/NAT args too
+
 # Use second argument (node IP) to replace filler in kubeadm configuration
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+# Update kubernetes config based on params
 sudo sed -i.bak "s/REPLACE_ME_WITH_IP/$2/g" $INSTALL_DIR/kubeadm.yaml
 sudo sed -i.bak "s/REPLACE_ME_WITH_MODE/$5/g" $INSTALL_DIR/kubeadm.yaml
 cat $INSTALL_DIR/kubeadm.yaml
+
+# Update calico config based on params
+sudo sed -i.bak "s/REPLACE_ME_WITH_ENCAPSULATION/$6/g" $INSTALL_DIR/calico_resources.yaml
+sudo sed -i.bak "s/REPLACE_ME_WITH_NAT/$7/g" $INSTALL_DIR/calico_resources.yaml
+cat $INSTALL_DIR/calico_resources.yaml
 
 # Learned this from https://k21academy.com/docker-kubernetes/container-runtime-is-not-running/
 sudo rm /etc/containerd/config.toml
