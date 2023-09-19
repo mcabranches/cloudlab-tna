@@ -38,6 +38,18 @@ pc.defineParameter("kubeproxyBackend",
                    "iptables",
                    legalValues=["iptables", "ipvs"],
                    longDescription="This parameter is ignored if startKubernetes is set to false.")
+pc.defineParameter("calicoEncapsulation",
+                   "Specify the encapsulation for tigera calico",
+                   portal.ParameterType.STRING,
+                   "VXLAN",
+                   legalValues=["None", "IPIP", "VXLAN"],
+                   longDescription="This parameter is ignored if startKubernetes is set to false.")
+pc.defineParameter("calicoNAT",
+                   "Specify whether to enable/disable NAT in tigera calico",
+                   portal.ParameterType.STRING,
+                   "Enabled",
+                   legalValues=["Enabled", "Disabled"],
+                   longDescription="This parameter is ignored if startKubernetes is set to false.")
 
 # Below option copy/pasted directly from small-lan experiment on CloudLab
 # Optional ephemeral blockstore
@@ -93,8 +105,8 @@ for i in range(params.nodeCount):
 
 # Iterate over secondary nodes first
 for i, node in enumerate(nodes[1:]):
-    node.addService(rspec.Execute(shell="bash", command="/local/repository/start.sh secondary {}.{} {} {} > /local/repository/start.log 2>&1 &".format(
-      BASE_IP, i + 2, params.startKubernetes, params.kubeproxyBackend)))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/start.sh secondary {}.{} {} {} {} {} > /local/repository/start.log 2>&1 &".format(
+      BASE_IP, i + 2, params.startKubernetes, params.kubeproxyBackend, params.calicoEncapsulation, params.calicoNAT)))
 
 # Start primary node
 nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} {} > /local/repository/start.log 2>&1".format(
