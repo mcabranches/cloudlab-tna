@@ -105,11 +105,11 @@ for i in range(params.nodeCount):
 
 # Iterate over secondary nodes first
 for i, node in enumerate(nodes[1:]):
-    node.addService(rspec.Execute(shell="bash", command="/local/repository/start.sh secondary {}.{} {} {} {} {} > /local/repository/start.log 2>&1 &".format(
-      BASE_IP, i + 2, params.startKubernetes, params.kubeproxyBackend, params.calicoEncapsulation, params.calicoNAT)))
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/start.sh secondary {}.{} {} {} > /local/repository/start.log 2>&1 &".format(
+      BASE_IP, i + 2, params.startKubernetes, params.kubeproxyBackend)))
 
 # Start primary node
-nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} {} > /local/repository/start.log 2>&1".format(
-  BASE_IP, params.nodeCount, params.startKubernetes, params.kubeproxyBackend)))
+nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} {} {} {} > /local/repository/start.log 2>&1".format(
+  BASE_IP, params.nodeCount, params.startKubernetes, params.kubeproxyBackend, params.calicoEncapsulation, params.calicoNAT)))
 
 pc.printRequestRSpec()
