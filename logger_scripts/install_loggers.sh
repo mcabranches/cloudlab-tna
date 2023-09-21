@@ -5,7 +5,7 @@ set -e
 
 LOG_DIR="/mylogs"
 PROFILE_GROUP="cudevopsfall2018"
-BINS="/usr/sbin/xtables-legacy-multi /usr/sbin/ipset /bin/ip /usr/sbin/iptables-apply /usr/sbin/ipmaddr /usr/sbin/iptunnel /usr/sbin/ipvsadm"
+BINS="/usr/sbin/xtables-legacy-multi /usr/sbin/ipset /bin/ip /usr/sbin/iptables-apply /usr/sbin/ipmaddr /usr/sbin/iptunnel /usr/sbin/ipvsadm /usr/sbin/route"
 
 ############ General Setup
 # Setup log dir for all binaries

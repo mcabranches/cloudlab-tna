@@ -9,6 +9,7 @@ The utilities that are logged are:
 * ```ipmaddr```
 * ```iptunnel```
 * ```ipvsadm```
+* ```route```
  
 ### Dependencies
 
