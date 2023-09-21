@@ -29,9 +29,9 @@ On the host, copy the files needed to a directory that is mounted by the pod, in
 sudo cp -r /local/repository/logger_scripts/ /var/log/calico/cni/logger_scripts
 ```
 
-Then, log into the pod (but replace calico-node-#### with the actual name of the pod):
+Then, log into the pod (but replace ```calico-node-????``` with the actual name of the pod):
 ```bash
-kubectl exec -n calico-system -it calico-node-#### -c calico-node -- /bin/bash
+kubectl exec -n calico-system -it calico-node-???? -c calico-node -- /bin/bash
 ```
 
 On the pod/container, run the setup script:
@@ -50,7 +50,7 @@ lacks commands like:
 * ```chmod```
 * ```dirname```
 
-Also the only user is root, and ```which ip``` gives a different path, so that had to be updated.
+Also the only user is ```root,``` and ```which ip``` gives a different path, so that had to be updated.
 
 ### Teardown
 Remove the loggers (restore to original state), run (on the host or pod):
@@ -62,7 +62,7 @@ OR
 ./remove_loggers_on_calico_pod.sh
 ```
 
-Be sure to clean the log dir (e.g., ```sudo rm -rf /mylogs```) before re-running ```install_loggers.sh```.
+Be sure to clean the log dir (e.g., ```sudo rm -rf /mylogs```) before re-running either install script.
 
 ### Notes
 
