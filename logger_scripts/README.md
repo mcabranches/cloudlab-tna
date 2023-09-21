@@ -34,3 +34,16 @@ Remove the loggers (restore to original state), run:
 
 Be sure to clean the log dir (e.g., ```sudo rm -rf /mylogs```) before re-running ```install_loggers.sh```.
 
+### Notes
+
+If the logs aren't informative enough, we could log something about the parent - maybe ust ```$PPID``` but you could also get the parent cmdline with something like:
+```
+#!/bin/bash
+
+parentCmdline=""
+while IFS= read -r -d '' substring || [[ $substring ]]; do
+  parentCmdline+="$substring"
+done </proc/$PPID/cmdline
+echo "$parentCmdline"
+```
+This solution taken from https://stackoverflow.com/questions/46163678/get-rid-of-warning-command-substitution-ignored-null-byte-in-input
