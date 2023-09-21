@@ -10,15 +10,11 @@ The utilities that are logged are:
 * ```iptunnel```
 * ```ipvsadm```
 * ```route```
+* ```ethtool```
+* ```ifconfig```
+* ```wg``` (wireguard)
+* ```tc``` (traffic control)
  
-### Dependencies
-
-These scripts were created with the paths for binaries in the default setup of Ubuntu 20.04.
-It also assumes ```ipset``` and ```ipvsadm``` are installed with something like the following:
-```bash
-sudo apt install -y ipset ipvsadm
-``` 
-
 ### Setup
 To install the loggers, run:
 ```bash
