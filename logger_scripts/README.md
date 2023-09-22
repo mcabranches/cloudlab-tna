@@ -14,11 +14,12 @@ The utilities that are logged are:
 * ```ifconfig```
 * ```wg``` (wireguard)
 * ```tc``` (traffic control)
+* ```brctl```
  
-### Setup on Host
+### Setup
 To install the loggers, run:
 ```bash
-./install_loggers_on_host.sh
+./install_loggers.sh
 ```
 
 Logs will be placed in the created directory: ```/mylogs```.
@@ -37,32 +38,16 @@ kubectl exec -n calico-system -it calico-node-???? -c calico-node -- /bin/bash
 On the pod/container, run the setup script:
 ```bash
 cd /var/log/calico/cni/logger_scripts
-./install_loggers_on_calico_pod.sh
+./install_loggers.sh
 ```
-
-Logs will be placed in the created directory: ```/mylogs```.
-
-It was not possible to run the original script inside the pod as the pod is pretty locked down, and
-lacks commands like:
-* ```tar``` (needed to copy files over to a pod with ```kubectl cp```)
-* ```mv```
-* ```sudo```
-* ```chmod```
-* ```dirname```
-
-Also the only user is ```root,``` and ```which ip``` gives a different path, so that had to be updated.
 
 ### Teardown
 Remove the loggers (restore to original state), run (on the host or pod):
 ```bash
-./remove_loggers_on_host.sh
-```
-OR
-```bash
-./remove_loggers_on_calico_pod.sh
+./remove_loggers.sh
 ```
 
-Be sure to clean the log dir (e.g., ```sudo rm -rf /mylogs```) before re-running either install script.
+Be sure to clean the log dir (e.g., ```rm -rf /mylogs```) before re-running either install script.
 
 ### Notes
 
