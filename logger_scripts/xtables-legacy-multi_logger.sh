@@ -10,12 +10,16 @@ if [[ $myCallingFile == "xtables-legacy-multi" ]]; then
   myCallingFile=""
 fi
 
-rm -f mystdin.txt
-cat > mystdin.txt
-
 # Log the command line for the operation
 echo "`date` + `whoami` + $OPERATION $myCallingFile "$@"" >> $LOGFILE
-cat mystdin.txt >> $LOGFILE
 
-# Do the operation
-exec cat mystdin.txt | $OPERATION $myCallingFile "$@"
+if [[ $myCallingFile == "iptables-legacy-restore" ]]; then
+  rm -f mystdin.txt
+  cat > mystdin.txt
+  cat mystdin.txt >> $LOGFILE
+
+  # Do the operation
+  exec cat mystdin.txt | $OPERATION $myCallingFile "$@"
+else
+  exec $OPERATION $myCallingFile "$@"
+fi
