@@ -36,9 +36,9 @@ for binfile in $BINS; do
     else
       # if not specific logger script, use template logger script
       cp template_logger.sh ./$binfile
-      sed -i "s/REPLACE_ME_WITH_BIN/$binfile/g" ./$binfile
       escaped_binpath=$(printf '%s\n' "$binpath" | sed -e 's/[\/&]/\\&/g')
       sed -i "s/REPLACE_ME_WITH_BINPATH/$escaped_binpath/g" ./$binfile
+      sed -i "s/REPLACE_ME_WITH_BIN/$binfile/g" ./$binfile
     fi
 
     touch "$LOG_DIR/$binfile".log
