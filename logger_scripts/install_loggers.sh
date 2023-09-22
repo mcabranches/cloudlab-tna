@@ -3,32 +3,40 @@
 set -x
 set -e
 
+PROFILE_GROUP="CUDevOpsFall2018"
 LOG_DIR="/mylogs"
-PROFILE_GROUP="root"
-BINS="/usr/sbin/xtables-legacy-multi /usr/sbin/ipset /usr/sbin/ip /usr/sbin/iptables-apply /usr/sbin/ipmaddr /usr/sbin/iptunnel /usr/sbin/ipvsadm /usr/sbin/route /usr/sbin/ethtool /usr/bin/wg /usr/sbin/tc /usr/sbin/ifconfig"
+BINS="xtables-legacy-multi ipset ip iptables-apply ipmaddr iptunnel ipvsadm route ethtool wg tc ifconfig brctl bird bird6"
 
 ############ General Setup
 # Setup log dir for all binaries
-mkdir $LOG_DIR
+if [ "$(id -u)" != "0" ]; then
+  mkdir $LOG_DIR
+else
+  # If not root, must use sudo as needed (useful for host, not container)
+  sudo mkdir $LOG_DIR
+  sudo chmod -R 777 $LOG_DIR
+  sudo chgrp -R $PROFILE_GROUP $LOG_DIR
+fi
 
 ############ Install logger scripts
 # Setup logger for every binary we're configured for.
-for binarypath in $BINS; do
-  bindir=${binarypath%/*}
-  binfile="$(basename "${binarypath}")"
-
+for binfile in $BINS; do
   # Only install if in PATH
   if [[ $(type -P "$binfile") ]]; then
     echo "$binfile is in PATH, installing logger"
+    
+    binpath=$(readlink -f `which $binfile`)
+    bindir=${binpath%/*}
+
     # copy logger script and make it executable
     cp "$binfile"_logger.sh ./$binfile
 
     touch "$LOG_DIR/$binfile".log
 
     # put the original binary in a new directory, replace it with logger script
-     mkdir "$binarypath"_real
-     cp "$binarypath" "$binarypath"_real/$binfile
-     cp -f ./$binfile $binarypath
+     mkdir "$binpath"_real
+     cp "$binpath" "$binpath"_real/$binfile
+     cp -f ./$binfile $binpath
   else
     echo "$binfile is NOT in PATH, ignoring" 1>&2
   fi

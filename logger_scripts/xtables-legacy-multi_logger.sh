@@ -10,8 +10,12 @@ if [[ $myCallingFile == "xtables-legacy-multi" ]]; then
   myCallingFile=""
 fi
 
+rm -f mystdin.txt
+cat > mystdin.txt
+
 # Log the command line for the operation
 echo "`date` + `whoami` + $OPERATION $myCallingFile "$@"" >> $LOGFILE
+cat mystdin.txt >> $LOGFILE
 
 # Do the operation
-exec $OPERATION $myCallingFile "$@"
+exec cat mystdin.txt | $OPERATION $myCallingFile "$@"
