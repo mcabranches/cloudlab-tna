@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPERATION=/bin/ip_real/ip
+OPERATION=`which ip`_real/ip
 LOGFILE=/mylogs/ip.log
 
 # Log the command line for the operation
