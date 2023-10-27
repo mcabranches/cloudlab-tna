@@ -3,7 +3,7 @@
 set -x
 set -e
 
-BINS="xtables-nft-multi xtables-legacy-multi ipset conntrack"
+BINS="conntrack ipset iptables-apply ip6tables-apply xtables-legacy-multi xtables-nft-multi"
 BINDIR="/usr/sbin"
 
 ############ Remove logger scripts
