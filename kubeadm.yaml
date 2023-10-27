@@ -11,8 +11,3 @@ networking:
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
 mode: "REPLACE_ME_WITH_MODE"
-extraVolumes:
-- name: hosts-file
-  hostPath: /local/repository/logger_scripts
-  mountPath: /logger_scripts
-
