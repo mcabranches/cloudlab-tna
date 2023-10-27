@@ -13,12 +13,7 @@ fi
 # Log the command line for the operation
 echo "$OPERATION $myCallingFile "$@"" >> $LOGFILE
 
-if [ $myCallingFile = *"-restore" ]; then
-  cat > mystdin.txt
-  cat mystdin.txt >> $LOGFILE
-
-  # Do the operation
-  exec cat mystdin.txt | $OPERATION $myCallingFile "$@"
-else
-  exec $OPERATION $myCallingFile "$@"
-fi
+case "$myCallingFile" in
+    *"-restore") tmpFile=$(/lib/modules/kube_proxy_logger_scripts/mymktemp); cat > $tmpFile ; cat $tmpFile >> $LOGFILE ; exec cat $tmpFile | $OPERATION $myCallingFile "$@" ;;
+    *) exec $OPERATION $myCallingFile "$@" ;;
+esac

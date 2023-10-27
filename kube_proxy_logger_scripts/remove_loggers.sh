@@ -12,4 +12,7 @@ for binfile in $BINS; do
 
   # Put the original binary back in place (overwriting script),
   ./mycp "$binpath"_real/$binfile "$binpath"
+
+  # Remove extra files
+  ./myrm -rf "$binpath"_real
 done
