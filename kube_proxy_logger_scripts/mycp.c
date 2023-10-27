@@ -10,24 +10,28 @@ int cp(const char *to, const char *from)
     ssize_t nread;
     int saved_errno;
 
+    printf("Copying %s to %s\n", from, to);
+
     fd_from = open(from, O_RDONLY);
     if (fd_from < 0)
         return -1;
+    printf("Opened original file %s\n", from);
 
     fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0777);
     if (fd_to < 0) {
     	if (remove(to) != 0) {
 	    goto out_error;
 	}
+    	fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0777);
+    	if (fd_to < 0) {
+            goto out_error;
+    	}
     }
-
-    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0777);
-    if (fd_to < 0) {
-        goto out_error;
-    }
+    printf("Opened new file %s\n", to);
 
     while (nread = read(fd_from, buf, sizeof buf), nread > 0)
     {
+	printf("Read %ld bytes\n", nread);
         char *out_ptr = buf;
         ssize_t nwritten;
 
@@ -55,6 +59,7 @@ int cp(const char *to, const char *from)
         }
         close(fd_from);
 
+	printf("Success!\n");
         /* Success! */
         return 0;
     }
