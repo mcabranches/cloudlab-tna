@@ -5,7 +5,7 @@ set -e
 
 LOG_DIR="/mylogs"
 
-BINS="conntrack ipset iptables-apply ip6tables-apply xtables-legacy-multi xtables-nft-multi"
+BINS="conntrack ipset xtables-legacy-multi xtables-nft-multi"
 BINPATH="/usr/sbin"
 
 # Create the log directory
