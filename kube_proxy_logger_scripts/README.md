@@ -11,7 +11,7 @@ The utilities that are logged are:
 ### Setup on kube-proxy pod
 On the host, copy the files needed to a directory that is mounted by the pod, in this case:
 ```bash
-cd /local/reposity/kube_proxy_logger_scripts
+cd /local/repository/kube_proxy_logger_scripts/
 make
 sudo cp -r /local/repository/kube_proxy_logger_scripts/ /lib/modules/kube_proxy_logger_scripts
 ```
