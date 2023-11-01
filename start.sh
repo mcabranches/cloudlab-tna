@@ -14,7 +14,7 @@ IPTABLES_ARG="iptables"
 FLANNEL_ARG="flannel"
 CALICO_ARG="calico"
 USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables> <encapsulation> <nat> <flannel|calico>'
-NUM_PRIMARY_ARGS=9
+NUM_PRIMARY_ARGS=8
 PROFILE_GROUP="profileuser"
 
 configure_docker_storage() {
