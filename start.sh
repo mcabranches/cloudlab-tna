@@ -13,8 +13,8 @@ IPVS_ARG="ipvs"
 IPTABLES_ARG="iptables"
 FLANNEL_ARG="flannel"
 CALICO_ARG="calico"
-USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables> <encapsulation> <nat>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables> <flannel|calico>'
-NUM_PRIMARY_ARGS=8
+USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables> <encapsulation> <nat> <flannel|calico>'
+NUM_PRIMARY_ARGS=9
 PROFILE_GROUP="profileuser"
 
 configure_docker_storage() {
@@ -362,11 +362,11 @@ sudo systemctl restart containerd || (echo "ERROR: Failed to restart containerd,
 setup_primary
 
 # Setup to use ipvs if desired
-if [ $6 == $CALICO_ARG ] ; then
+if [ $8 == $CALICO_ARG ] ; then
     # Apply calico networking
     apply_calico
     echo "Using calico"
-elif [ $6 == $FLANNEL_ARG ] ; then
+elif [ $8 == $FLANNEL_ARG ] ; then
     # Apply flannel networking
     apply_flannel
     echo "Using flannel"
