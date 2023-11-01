@@ -5,7 +5,7 @@ set -x
 BASE_IP="10.10.1."
 SECONDARY_PORT=3000
 INSTALL_DIR=/local/repository
-IFACE_NAME=myiface
+IFACE_NAME="myiface"
 
 NUM_MIN_ARGS=4
 PRIMARY_ARG="primary"
@@ -279,7 +279,7 @@ for FILE in /users/*; do
 done
 
 # Rename iface name to something standard - needed for flannel.
-ORIG_IFACE = $(netstat -ie | grep -B1 $BASE_IP | head -n 1 | awk '{print substr($1, 1, length($1)-1)}')
+ORIG_IFACE=$(netstat -ie | grep -B1 $BASE_IP | head -n 1 | awk '{print substr($1, 1, length($1)-1)}')
 sudo ip link set dev $ORIG_IFACE down
 sudo ip link set dev $ORIG_IFACE name $IFACE_NAME
 sudo ip link set dev $IFACE_NAME up
