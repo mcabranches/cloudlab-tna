@@ -38,18 +38,24 @@ pc.defineParameter("kubeproxyBackend",
                    "iptables",
                    legalValues=["iptables", "ipvs"],
                    longDescription="This parameter is ignored if startKubernetes is set to false.")
+pc.defineParameter("cni",
+                   "If creating a Kubernetes cluster, use calico or flannel",
+                   portal.ParameterType.STRING,
+                   "calico",
+                   legalValues=["calico", "flannel"],
+                   longDescription="This parameter is ignored if startKubernetes is set to false.")
 pc.defineParameter("calicoEncapsulation",
                    "Specify the encapsulation for tigera calico",
                    portal.ParameterType.STRING,
                    "VXLAN",
                    legalValues=["None", "IPIP", "VXLAN"],
-                   longDescription="This parameter is ignored if startKubernetes is set to false.")
+                   longDescription="This parameter is ignored if startKubernetes is set to false or flannel is used.")
 pc.defineParameter("calicoNAT",
                    "Specify whether to enable/disable NAT in tigera calico",
                    portal.ParameterType.STRING,
                    "Enabled",
                    legalValues=["Enabled", "Disabled"],
-                   longDescription="This parameter is ignored if startKubernetes is set to false.")
+                   longDescription="This parameter is ignored if startKubernetes is set to false or flannel is used.")
 
 # Below option copy/pasted directly from small-lan experiment on CloudLab
 # Optional ephemeral blockstore
@@ -109,7 +115,7 @@ for i, node in enumerate(nodes[1:]):
       BASE_IP, i + 2, params.startKubernetes, params.kubeproxyBackend)))
 
 # Start primary node
-nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} {} {} {} > /local/repository/start.log 2>&1".format(
-  BASE_IP, params.nodeCount, params.startKubernetes, params.kubeproxyBackend, params.calicoEncapsulation, params.calicoNAT)))
+nodes[0].addService(rspec.Execute(shell="bash", command="/local/repository/start.sh primary {}.1 {} {} {} {} {} {} > /local/repository/start.log 2>&1".format(
+  BASE_IP, params.nodeCount, params.startKubernetes, params.kubeproxyBackend, params.calicoEncapsulation, params.calicoNAT, params.cni)))
 
 pc.printRequestRSpec()
