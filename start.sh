@@ -11,8 +11,10 @@ PRIMARY_ARG="primary"
 SECONDARY_ARG="secondary"
 IPVS_ARG="ipvs"
 IPTABLES_ARG="iptables"
-USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables> <encapsulation> <nat>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables>'
-NUM_PRIMARY_ARGS=7
+FLANNEL_ARG="flannel"
+CALICO_ARG="calico"
+USAGE=$'Usage:\n\t./start.sh secondary <node_ip> <start_kubernetes> <ipvs|iptables> <encapsulation> <nat>\n\t./start.sh primary <node_ip> <num_nodes> <start_kubernetes> <ipvs|iptables> <flannel|calico>'
+NUM_PRIMARY_ARGS=8
 PROFILE_GROUP="profileuser"
 
 configure_docker_storage() {
@@ -145,6 +147,43 @@ apply_calico() {
         NUM_RUNNING=$((NUM_PODS-NUM_RUNNING))
     done
     printf "%s: %s\n" "$(date +"%T.%N")" "Calico pods running!"
+    
+    # wait for kube-system pods to be in ready state
+    printf "%s: %s\n" "$(date +"%T.%N")" "Waiting for all system pods to have status of 'Running': "
+    NUM_PODS=$(kubectl get pods -n kube-system | wc -l)
+    NUM_RUNNING=$(kubectl get pods -n kube-system | grep " Running" | wc -l)
+    NUM_RUNNING=$((NUM_PODS-NUM_RUNNING))
+    while [ "$NUM_RUNNING" -ne 0 ]
+    do
+        sleep 1
+        printf "."
+        NUM_RUNNING=$(kubectl get pods -n kube-system | grep " Running" | wc -l)
+        NUM_RUNNING=$((NUM_PODS-NUM_RUNNING))
+    done
+    printf "%s: %s\n" "$(date +"%T.%N")" "Kubernetes system pods running!"
+}
+
+apply_flannel() {
+    kubectl apply -f /local/repository/kube-flannel.yml >> $INSTALL_DIR/flannel_install.log 2>&1
+    if [ $? -ne 0 ]; then
+       echo "***Error: Error when installing flannel. Logs in $INSTALL_DIR/flannel_install.log"
+       exit 1
+    fi
+    printf "%s: %s\n" "$(date +"%T.%N")" "Applied Flannel networking"
+
+    # wait for flannel pods to be in ready state
+    printf "%s: %s\n" "$(date +"%T.%N")" "Waiting for flannel pods to have status of 'Running': "
+    NUM_PODS=$(kubectl get pods -n kube-flannel | wc -l)
+    NUM_RUNNING=$(kubectl get pods -n kube-flannel | grep " Running" | wc -l)
+    NUM_RUNNING=$((NUM_PODS-NUM_RUNNING))
+    while [ "$NUM_RUNNING" -ne 0 ]
+    do
+        sleep 1
+        printf "."
+        NUM_RUNNING=$(kubectl get pods -n kube-flannel | grep " Running" | wc -l)
+        NUM_RUNNING=$((NUM_PODS-NUM_RUNNING))
+    done
+    printf "%s: %s\n" "$(date +"%T.%N")" "Flannel pods running!"
     
     # wait for kube-system pods to be in ready state
     printf "%s: %s\n" "$(date +"%T.%N")" "Waiting for all system pods to have status of 'Running': "
@@ -322,8 +361,20 @@ sudo systemctl restart containerd || (echo "ERROR: Failed to restart containerd,
 # Argument is node_ip
 setup_primary
 
-# Apply calico networking
-apply_calico
+# Setup to use ipvs if desired
+if [ $6 == $CALICO_ARG ] ; then
+    # Apply calico networking
+    apply_calico
+    echo "Using calico"
+elif [ $6 == $FLANNEL_ARG ] ; then
+    # Apply flannel networking
+    apply_flannel
+    echo "Using flannel"
+else
+    echo "***Error: Expected $CALICO_ARG or $FLANNEL_ARG"
+    echo "$USAGE"
+    exit -1
+fi
 
 # Coordinate master to add nodes to the kubernetes cluster
 # Argument is number of nodes
