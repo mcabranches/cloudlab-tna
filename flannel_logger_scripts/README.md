@@ -16,24 +16,11 @@ Actual list with paths:
   * iptunnel
   * wg
   * tc
-* /bin/busybox -> which works with busybox
-  * brctl
-  * ifconfig
-  * ipcalc
-  * ifconfig
-  * ifdown
-  * ifenslave
-  * ifup
-  * ipaddr
-  * iplink
-  * ipneigh
-  * iproute
-  * iprule
-  * route
-  * tunctl
 * custom solution
   * /sbin/xtables-nft-multi - xtables-nft-multi (arptables*, ebtables*, iptables-nft*, iptables-restore-translate, iptables-translate, xtables-monitor)
   * /sbin/xtables-legacy-multi - xtables-legacy-multi (ip6tables*, iptables* except -apply and those in nft-multi)
+
+Note: there appears to be a lot of commands available through busybox in the container, but I don't have evidence flannel uses those commands (through grepping through the code base).
  
 ### Setup on flannel-kube pod
 On the host, copy the files needed to a directory that is mounted by the pod, in this case:

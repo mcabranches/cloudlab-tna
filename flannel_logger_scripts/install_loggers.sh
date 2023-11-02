@@ -4,7 +4,7 @@ set -x
 set -e
 
 LOG_DIR="/mylogs"
-BINS="xtables-nft-multi xtables-legacy-multi busybox ipsec netstat arp bridge ifstat ip ipmaddr iptables-apply iptunnel wg tc"
+BINS="xtables-nft-multi xtables-legacy-multi ipsec netstat arp bridge ifstat ip ipmaddr iptables-apply iptunnel wg tc"
 
 mkdir $LOG_DIR
 

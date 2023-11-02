@@ -3,7 +3,7 @@
 set -x
 set -e
 
-BINS="xtables-nft-multi xtables-legacy-multi busybox ipsec netstat arp bridge ifstat ip ipmaddr iptables-apply iptunnel wg tc"
+BINS="xtables-nft-multi xtables-legacy-multi ipsec netstat arp bridge ifstat ip ipmaddr iptables-apply iptunnel wg tc"
 
 ############ Remove logger scripts
 for binfile in $BINS; do
