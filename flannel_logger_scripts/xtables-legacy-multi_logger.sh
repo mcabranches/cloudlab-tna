@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPERATION=/usr/sbin/xtables-legacy-multi_real/xtables-legacy-multi
+OPERATION=/sbin/xtables-legacy-multi_real/xtables-legacy-multi
 LOGFILE=/mylogs/xtables-legacy-multi.log
 
 # Collect the calling file.

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPERATION=/usr/sbin/xtables-nft-multi_real/xtables-nft-multi
+OPERATION=/sbin/xtables-nft-multi_real/xtables-nft-multi
 LOGFILE=/mylogs/xtables-nft-multi.log
 
 # Collect the calling file.
