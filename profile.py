@@ -9,7 +9,7 @@ import geni.portal as portal
 import geni.rspec.pg as rspec
 
 BASE_IP = "10.10.1"
-BANDWIDTH = 1000000
+BANDWIDTH = 10000000
 TNA_IMAGE = 'urn:publicid:IDN+emulab.net+image+CUDevOpsFall2018:tnak8s'
 #'urn:publicid:IDN+emulab.net+image+CUDevOpsFall2018:xdptna.node-0'
 
